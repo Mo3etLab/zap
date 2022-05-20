@@ -32,11 +32,19 @@ import (
 
 // A Logger provides fast, leveled, structured logging. All methods are safe
 // for concurrent use.
-//
+
 // The Logger is designed for contexts in which every microsecond and every
 // allocation matters, so its API intentionally favors performance and type
 // safety over brevity. For most applications, the SugaredLogger strikes a
 // better balance between performance and ergonomics.
+// Logger 提供快速、分级、结构化的日志记录。 所有方法都是安全的
+// 并发使用。
+
+// Logger 是为每微秒和每
+// 分配很重要，所以它的 API 有意偏向于性能和类型
+// 安全胜过简洁。 对于大多数应用程序，SugaredLogger 打击了
+// 在性能和人体工程学之间取得更好的平衡。
+
 type Logger struct {
 	core zapcore.Core
 
@@ -64,6 +72,18 @@ type Logger struct {
 // more convenient.
 //
 // For sample code, see the package-level AdvancedConfiguration example.
+
+// New 从提供的 zapcore.Core 和 Options 构造一个新的 Logger。 如果
+// 传递的 zapcore.Core 为 nil，它回退到使用无操作
+// 执行。
+//
+// 这是构造Logger最灵活的方式，也是最
+// 详细。 对于典型的用例，高度评价的预设
+// (NewProduction、NewDevelopment 和 NewExample) 或 Config 结构是
+// 更方便。
+//
+// 示例代码请参见包级 AdvancedConfiguration 示例。
+
 func New(core zapcore.Core, options ...Option) *Logger {
 	if core == nil {
 		return NewNop()
@@ -82,6 +102,13 @@ func New(core zapcore.Core, options ...Option) *Logger {
 //
 // Using WithOptions to replace the Core or error output of a no-op Logger can
 // re-enable logging.
+
+// NewNop 返回一个无操作记录器。 它从不写出日志或内部错误，
+// 而且它从不运行用户定义的钩子。
+//
+// 使用WithOptions替换一个no-op Logger的Core或者错误输出可以
+// 重新启用日志记录。
+
 func NewNop() *Logger {
 	return &Logger{
 		core:        zapcore.NewNopCore(),
