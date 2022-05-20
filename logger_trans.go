@@ -316,6 +316,13 @@ func (log *Logger) Panic(msg string, fields ...Field) {
 //
 // The logger then calls os.Exit(1), even if logging at FatalLevel is
 // disabled.
+
+// Fatal 在 FatalLevel 记录一条消息。 该消息包括传递的任何字段
+// 在日志站点，以及记录器上累积的任何字段。
+//
+// 然后记录器调用 os.Exit(1)，即使在 FatalLevel 的记录是
+// 禁用。
+
 func (log *Logger) Fatal(msg string, fields ...Field) {
 	if ce := log.check(FatalLevel, msg); ce != nil {
 		ce.Write(fields...)
@@ -324,11 +331,16 @@ func (log *Logger) Fatal(msg string, fields ...Field) {
 
 // Sync calls the underlying Core's Sync method, flushing any buffered log
 // entries. Applications should take care to call Sync before exiting.
+
+// Sync 调用底层 Core 的 Sync 方法，刷新所有缓冲的日志
+// 条目。 应用程序应注意在退出之前调用 Sync。
 func (log *Logger) Sync() error {
 	return log.core.Sync()
 }
 
 // Core returns the Logger's underlying zapcore.Core.
+
+//核心返回记录器的基础zapcore.core。
 func (log *Logger) Core() zapcore.Core {
 	return log.core
 }
@@ -343,16 +355,26 @@ func (log *Logger) check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
 	// Logger interface (e.g., Check, Info, Fatal).
 	// This skips Logger.check and the Info/Fatal/Check/etc. method that
 	// called it.
+
+	// Logger.check 必须始终由
+	// 记录器接口（例如，Check、Info、Fatal）。
+	// 这会跳过 Logger.check 和 Info/Fatal/Check/etc。 方法
+	// 叫它。
+
 	const callerSkipOffset = 2
 
 	// Check the level first to reduce the cost of disabled log calls.
+	//首先检查级别以降低残疾日志调用的成本。
 	// Since Panic and higher may exit, we skip the optimization for those levels.
+	//由于恐慌和较高的可能退出，我们会跳过对这些级别的优化。
 	if lvl < zapcore.DPanicLevel && !log.core.Enabled(lvl) {
 		return nil
 	}
 
 	// Create basic checked entry thru the core; this will be non-nil if the
+	//通过核心创建基本的检查条目；如果这将是非尼尔的
 	// log message will actually be written somewhere.
+	//日志消息实际上将写在某个地方。
 	ent := zapcore.Entry{
 		LoggerName: log.name,
 		Time:       log.clock.Now(),
