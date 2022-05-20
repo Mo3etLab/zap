@@ -37,6 +37,15 @@ import (
 // allocation matters, so its API intentionally favors performance and type
 // safety over brevity. For most applications, the SugaredLogger strikes a
 // better balance between performance and ergonomics.
+
+// Logger 提供快速、分级、结构化的日志记录。 所有方法都是安全的
+// 并发使用。
+
+// Logger 是为每微秒和每
+// 分配很重要，所以它的 API 有意偏向于性能和类型
+// 安全胜过简洁。 对于大多数应用程序，SugaredLogger 打击了
+// 在性能和人体工程学之间取得更好的平衡。
+
 type Logger struct {
 	core zapcore.Core
 
@@ -64,6 +73,18 @@ type Logger struct {
 // more convenient.
 //
 // For sample code, see the package-level AdvancedConfiguration example.
+
+// New 从提供的 zapcore.Core 和 Options 构造一个新的 Logger。 如果
+// 传递的 zapcore.Core 为 nil，它回退到使用无操作
+// 执行。
+//
+// 这是构造Logger最灵活的方式，也是最
+// 详细。 对于典型的用例，高度评价的预设
+// (NewProduction、NewDevelopment 和 NewExample) 或 Config 结构是
+// 更方便。
+//
+// 示例代码请参见包级 AdvancedConfiguration 示例。
+
 func New(core zapcore.Core, options ...Option) *Logger {
 	if core == nil {
 		return NewNop()
@@ -82,6 +103,13 @@ func New(core zapcore.Core, options ...Option) *Logger {
 //
 // Using WithOptions to replace the Core or error output of a no-op Logger can
 // re-enable logging.
+
+// NewNop 返回一个无操作记录器。 它从不写出日志或内部错误，
+// 而且它从不运行用户定义的钩子。
+//
+// 使用WithOptions替换一个no-op Logger的Core或者错误输出可以
+// 重新启用日志记录。
+
 func NewNop() *Logger {
 	return &Logger{
 		core:        zapcore.NewNopCore(),
@@ -92,17 +120,24 @@ func NewNop() *Logger {
 }
 
 // NewProduction builds a sensible production Logger that writes InfoLevel and
+// New Production构建了一个明智的生产记录仪
 // above logs to standard error as JSON.
+//上面的日志为标准错误作为JSON。
 //
 // It's a shortcut for NewProductionConfig().Build(...Option).
+//这是NewProductionConfig（）。build（... option）的快捷方式。
+
 func NewProduction(options ...Option) (*Logger, error) {
 	return NewProductionConfig().Build(options...)
 }
 
 // NewDevelopment builds a development Logger that writes DebugLevel and above
+// NewDevelopment建立了一个开发记录仪，该记录仪撰写Debuglevel及以上
 // logs to standard error in a human-friendly format.
+//以人为友好的格式记录到标准错误。
 //
 // It's a shortcut for NewDevelopmentConfig().Build(...Option).
+//这是NewDevelopmentConfig（）。build（... option）的快捷方式。
 func NewDevelopment(options ...Option) (*Logger, error) {
 	return NewDevelopmentConfig().Build(options...)
 }
@@ -111,6 +146,12 @@ func NewDevelopment(options ...Option) (*Logger, error) {
 // examples. It writes DebugLevel and above logs to standard out as JSON, but
 // omits the timestamp and calling function to keep example output
 // short and deterministic.
+
+// NewExample 构建一个专门用于 zap 的可测试的 Logger
+// 例子。 它将 DebugLevel 及以上的日志作为 JSON 写入标准输出，但是
+// 省略时间戳和调用函数以保留示例输出
+// 简短而确定。
+
 func NewExample(options ...Option) *Logger {
 	encoderCfg := zapcore.EncoderConfig{
 		MessageKey:     "msg",
@@ -128,6 +169,12 @@ func NewExample(options ...Option) *Logger {
 // API. Sugaring a Logger is quite inexpensive, so it's reasonable for a
 // single application to use both Loggers and SugaredLoggers, converting
 // between them on the boundaries of performance-sensitive code.
+
+// Sugar 包装了 Logger 以提供更符合人体工程学，但速度稍慢，
+// API。 给 Logger 加糖相当便宜，所以对于一个 Logger 来说是合理的
+// 单个应用程序同时使用 Loggers 和 SugaredLoggers，转换
+// 它们之间在性能敏感代码的边界上。
+
 func (log *Logger) Sugar() *SugaredLogger {
 	core := log.clone()
 	core.callerSkip += 2
@@ -136,6 +183,10 @@ func (log *Logger) Sugar() *SugaredLogger {
 
 // Named adds a new path segment to the logger's name. Segments are joined by
 // periods. By default, Loggers are unnamed.
+
+// Named 为记录器的名称添加一个新的路径段。 细分由
+// 句点。 默认情况下，Logger 是未命名的。
+
 func (log *Logger) Named(s string) *Logger {
 	if s == "" {
 		return log
@@ -150,7 +201,9 @@ func (log *Logger) Named(s string) *Logger {
 }
 
 // WithOptions clones the current Logger, applies the supplied Options, and
+//使用“使用克隆”当前记录器，应用所提供的选项，并且
 // returns the resulting Logger. It's safe to use concurrently.
+//返回结果记录器。同时使用安全。
 func (log *Logger) WithOptions(opts ...Option) *Logger {
 	c := log.clone()
 	for _, opt := range opts {
@@ -160,7 +213,9 @@ func (log *Logger) WithOptions(opts ...Option) *Logger {
 }
 
 // With creates a child logger and adds structured context to it. Fields added
+//使用创建子记录仪并在其中添加结构化上下文。添加了字段
 // to the child don't affect the parent, and vice versa.
+//对孩子不影响父母，反之亦然。
 func (log *Logger) With(fields ...Field) *Logger {
 	if len(fields) == 0 {
 		return log
@@ -171,13 +226,18 @@ func (log *Logger) With(fields ...Field) *Logger {
 }
 
 // Check returns a CheckedEntry if logging a message at the specified level
+//检查如果在指定级别记录消息，请返回checkedentry
 // is enabled. It's a completely optional optimization; in high-performance
+//已启用。这是一个完全可选的优化；高性能
 // applications, Check can help avoid allocating a slice to hold fields.
+//应用程序，检查可以帮助避免分配切片以容纳字段。
 func (log *Logger) Check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
 	return log.check(lvl, msg)
 }
 
 // Debug logs a message at DebugLevel. The message includes any fields passed
+// Debug在Debuglevel登录一条消息。该消息包括通过的任何字段
+// Debug在Debuglevel登录一条消息。该消息包括通过的任何字段
 // at the log site, as well as any fields accumulated on the logger.
 func (log *Logger) Debug(msg string, fields ...Field) {
 	if ce := log.check(DebugLevel, msg); ce != nil {
@@ -186,7 +246,9 @@ func (log *Logger) Debug(msg string, fields ...Field) {
 }
 
 // Info logs a message at InfoLevel. The message includes any fields passed
+//在日志站点以及日志仪上积累的任何字段。
 // at the log site, as well as any fields accumulated on the logger.
+//在日志站点以及日志仪上积累的任何字段。
 func (log *Logger) Info(msg string, fields ...Field) {
 	if ce := log.check(InfoLevel, msg); ce != nil {
 		ce.Write(fields...)
@@ -194,7 +256,9 @@ func (log *Logger) Info(msg string, fields ...Field) {
 }
 
 // Warn logs a message at WarnLevel. The message includes any fields passed
+//警告在Warnlevel上记录一条消息。该消息包括通过的任何字段
 // at the log site, as well as any fields accumulated on the logger.
+//在日志站点以及日志仪上积累的任何字段。
 func (log *Logger) Warn(msg string, fields ...Field) {
 	if ce := log.check(WarnLevel, msg); ce != nil {
 		ce.Write(fields...)
@@ -202,7 +266,9 @@ func (log *Logger) Warn(msg string, fields ...Field) {
 }
 
 // Error logs a message at ErrorLevel. The message includes any fields passed
+//错误在ErrorLevel上记录消息。该消息包括通过的任何字段
 // at the log site, as well as any fields accumulated on the logger.
+//在日志站点以及日志仪上积累的任何字段。
 func (log *Logger) Error(msg string, fields ...Field) {
 	if ce := log.check(ErrorLevel, msg); ce != nil {
 		ce.Write(fields...)
@@ -215,6 +281,14 @@ func (log *Logger) Error(msg string, fields ...Field) {
 // If the logger is in development mode, it then panics (DPanic means
 // "development panic"). This is useful for catching errors that are
 // recoverable, but shouldn't ever happen.
+
+// DPanic 在 DPanicLevel 记录一条消息。 消息包括任何字段
+// 在日志站点传递，以及在记录器上累积的任何字段。
+//
+// 如果记录器处于开发模式，则它会发生恐慌（DPanic 表示
+// “发展恐慌”）。 这对于捕获错误很有用
+// 可恢复，但不应该发生。
+
 func (log *Logger) DPanic(msg string, fields ...Field) {
 	if ce := log.check(DPanicLevel, msg); ce != nil {
 		ce.Write(fields...)
@@ -225,6 +299,12 @@ func (log *Logger) DPanic(msg string, fields ...Field) {
 // at the log site, as well as any fields accumulated on the logger.
 //
 // The logger then panics, even if logging at PanicLevel is disabled.
+
+// Panic 在 PanicLevel 记录一条消息。 该消息包括传递的任何字段
+// 在日志站点，以及记录器上累积的任何字段。
+//
+// 然后记录器会恐慌，即使 PanicLevel 的记录被禁用。
+
 func (log *Logger) Panic(msg string, fields ...Field) {
 	if ce := log.check(PanicLevel, msg); ce != nil {
 		ce.Write(fields...)
