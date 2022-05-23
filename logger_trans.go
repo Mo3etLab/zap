@@ -352,9 +352,13 @@ func (log *Logger) clone() *Logger {
 
 func (log *Logger) check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
 	// Logger.check must always be called directly by a method in the
+	// logger.check必须始终通过一种方法在
 	// Logger interface (e.g., Check, Info, Fatal).
+	// Logger接口（例如，检查，信息，致命）。
 	// This skips Logger.check and the Info/Fatal/Check/etc. method that
+	//此跳过logger.check和info/fatal/check/等。方法
 	// called it.
+	// 叫它。
 
 	// Logger.check 必须始终由
 	// 记录器接口（例如，Check、Info、Fatal）。
@@ -385,13 +389,16 @@ func (log *Logger) check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
 	willWrite := ce != nil
 
 	// Set up any required terminal behavior.
+	//设置任何必需的终端行为。
 	switch ent.Level {
 	case zapcore.PanicLevel:
 		ce = ce.Should(ent, zapcore.WriteThenPanic)
 	case zapcore.FatalLevel:
 		onFatal := log.onFatal
 		// nil or WriteThenNoop will lead to continued execution after
+		// nil或Writethennoop将导致持续执行
 		// a Fatal log entry, which is unexpected. For example,
+		//致命的日志条目，这是出乎意料的。例如，
 		//
 		//   f, err := os.Open(..)
 		//   if err != nil {
@@ -419,6 +426,7 @@ func (log *Logger) check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
 	}
 
 	// Thread the error output through to the CheckedEntry.
+	//将错误输出通过到checkedentry。
 	ce.ErrorOutput = log.errorOutput
 
 	addStack := log.addStack.Enabled(ce.Level)
