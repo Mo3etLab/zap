@@ -97,14 +97,19 @@ func Development() Option {
 }
 
 // AddCaller configures the Logger to annotate each message with the filename,
+// addCaller配置记录器，以用文件名注释每个消息，
 // line number, and function name of zap's caller. See also WithCaller.
+//行号，ZAP呼叫者的函数名称。另请参阅WithCaller。
 func AddCaller() Option {
 	return WithCaller(true)
 }
 
 // WithCaller configures the Logger to annotate each message with the filename,
+//用caller配置记录器，以用文件名注释每个消息，
 // line number, and function name of zap's caller, or not, depending on the
+// ZAP呼叫者的行号和函数名称，是否取决于
 // value of enabled. This is a generalized form of AddCaller.
+//已启用的值。这是AddCaller的广义形式。
 func WithCaller(enabled bool) Option {
 	return optionFunc(func(log *Logger) {
 		log.addCaller = enabled
@@ -112,9 +117,13 @@ func WithCaller(enabled bool) Option {
 }
 
 // AddCallerSkip increases the number of callers skipped by caller annotation
+// addCallersKip增加了通过呼叫者注释跳过的呼叫者的数量
 // (as enabled by the AddCaller option). When building wrappers around the
+//（如AddCaller选项启用）。当周围建造包装纸时
 // Logger and SugaredLogger, supplying this Option prevents zap from always
+// Logger和SugaredLogger，提供此选项可防止ZAP始终
 // reporting the wrapper code as the caller.
+// 将包装器代码报告为呼叫者。
 func AddCallerSkip(skip int) Option {
 	return optionFunc(func(log *Logger) {
 		log.callerSkip += skip
@@ -161,6 +170,21 @@ func OnFatal(action zapcore.CheckWriteAction) Option {
 // the current statement to meet expectations of callers of the logger.
 // We recommend calling os.Exit or runtime.Goexit inside custom hooks at
 // minimum.
+
+// WithFatalHook 设置 CheckWriteHook 以在致命日志上运行。
+// Zap 会在写了一个致命级别的日志语句后调用这个钩子。
+//
+// 例如，下面构建一个将退出当前的记录器
+// goroutine 在写了一个致命的日志消息后，但它不会退出
+// 程序。
+//
+// zap.New(core, zap.WithFatalHook(zapcore.WriteThenGoexit))
+//
+// 重要的是，提供的 CheckWriteHook 停止控制流
+// 满足记录器调用者期望的当前语句。
+// 我们建议在自定义钩子中调用 os.Exit 或 runtime.Goexit
+// 最低限度。
+
 func WithFatalHook(hook zapcore.CheckWriteHook) Option {
 	return optionFunc(func(log *Logger) {
 		log.onFatal = hook
@@ -168,6 +192,8 @@ func WithFatalHook(hook zapcore.CheckWriteHook) Option {
 }
 
 // WithClock specifies the clock used by the logger to determine the current
+//用clock指定记录器使用的时钟来确定当前
+//记录条目的时间。默认到系统时钟随时间。
 // time for logged entries. Defaults to the system clock with time.Now.
 func WithClock(clock zapcore.Clock) Option {
 	return optionFunc(func(log *Logger) {

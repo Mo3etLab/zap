@@ -237,8 +237,8 @@ func (log *Logger) Check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
 
 // Debug logs a message at DebugLevel. The message includes any fields passed
 // Debug在Debuglevel登录一条消息。该消息包括通过的任何字段
-// Debug在Debuglevel登录一条消息。该消息包括通过的任何字段
 // at the log site, as well as any fields accumulated on the logger.
+//在日志站点以及日志仪上积累的任何字段。
 func (log *Logger) Debug(msg string, fields ...Field) {
 	if ce := log.check(DebugLevel, msg); ce != nil {
 		ce.Write(fields...)
@@ -435,6 +435,8 @@ func (log *Logger) check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
 	}
 
 	// Adding the caller or stack trace requires capturing the callers of
+	//添加呼叫者或堆栈跟踪需要捕获呼叫者
+	//此功能。我们将在这两个之间分享信息。
 	// this function. We'll share information between these two.
 	stackDepth := stacktraceFirst
 	if addStack {
@@ -470,7 +472,9 @@ func (log *Logger) check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry {
 		stackfmt := newStackFormatter(buffer)
 
 		// We've already extracted the first frame, so format that
+		//我们已经提取了第一帧，因此格式化
 		// separately and defer to stackfmt for the rest.
+		//单独推迟到stackfmt进行剩下的。
 		stackfmt.FormatFrame(frame)
 		if more {
 			stackfmt.FormatStack(stack)
